@@ -9,47 +9,37 @@ import { ExpositoresListComponent } from './components/expositores-list/exposito
 import { ExpositoresFormComponent } from './components/expositores-form/expositores-form.component';
 import { CatalogosManagerComponent } from './components/catalogos-manager/catalogos-manager.component';
 import { RegisterExpositorComponent } from './components/register-expositor/register-expositor.component';
+import { ExpositorFormComponent } from './components/expositor-form/expositor-form.component';
+import { RegistrationSummaryComponent } from './pages/registration-summary/registration-summary.component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
-    { path: 'login', component: LoginComponent },
-    { path: 'register-expositor', component: RegisterExpositorComponent },
-    { path: 'animals/new', component: AnimalFormComponent },
-    { path: 'animals', component: AnimalsListComponent },
 
-    // Expositores
+    // New Registration Flow
+    { path: 'inscripcion/expositor', component: ExpositorFormComponent },
+    { path: 'inscripcion/animales', component: AnimalFormComponent },
+    { path: 'inscripcion/resumen', component: RegistrationSummaryComponent },
+
+    // Keep legacy for now or redirect
+    { path: 'login', redirectTo: 'inscripcion/expositor' },
+    { path: 'register-expositor', redirectTo: 'inscripcion/expositor' },
+    { path: 'animals/new', redirectTo: 'inscripcion/animales' },
+
+    // Admin
+    {
+        path: 'admin',
+        component: AdminDashboardComponent,
+        canActivate: [AdminGuard]
+    },
+    // ... potentially other admin routes
     {
         path: 'expositores',
         component: ExpositoresListComponent,
         canActivate: [AdminGuard]
     },
     {
-        path: 'expositores/new',
-        component: ExpositoresFormComponent,
-        canActivate: [AdminGuard]
-    },
-    {
-        path: 'expositores/edit/:id',
-        component: ExpositoresFormComponent,
-        canActivate: [AdminGuard]
-    },
-
-    // Catalogos
-    {
         path: 'catalogos',
         component: CatalogosManagerComponent,
         canActivate: [AdminGuard]
-    },
-
-    // Admin
-    {
-        path: 'admin/edit/:id',
-        component: AnimalFormComponent,
-        canActivate: [AdminGuard]
-    },
-    {
-        path: 'admin',
-        component: AdminDashboardComponent,
-        canActivate: [AdminGuard]
-    },
+    }
 ];

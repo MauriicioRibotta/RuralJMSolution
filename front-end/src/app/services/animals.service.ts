@@ -52,8 +52,12 @@ export class AnimalsService {
         return this.http.post<Animal>(this.apiUrl, animal);
     }
 
-    findAll(): Observable<Animal[]> {
-        return this.http.get<Animal[]>(this.apiUrl);
+    findAll(cuit?: string): Observable<Animal[]> {
+        const params: any = {};
+        if (cuit) {
+            params.cuit = cuit;
+        }
+        return this.http.get<Animal[]>(this.apiUrl, { params });
     }
 
     exportExcel(): void {

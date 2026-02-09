@@ -13,16 +13,10 @@ export class AnimalsService {
         private readonly expositoresService: ExpositoresService,
     ) { }
 
-    async create(createAnimalDto: CreateAnimalDto, userEmail?: string): Promise<Animal> {
-        if (userEmail) {
-            const expositor = await this.expositoresService.findOneByEmail(userEmail);
-            if (expositor) {
-                // Enforce that the user can only create for themselves
-                if (createAnimalDto.expositorId && createAnimalDto.expositorId !== expositor.id) {
-                    throw new ConflictException('No tienes permiso para registrar animales de otro expositor.');
-                }
-                createAnimalDto.expositorId = expositor.id;
-            }
+    async create(createAnimalDto: CreateAnimalDto): Promise<Animal> {
+        // Validate expositor existence if needed, or trust foreign key constraint
+        if (!createAnimalDto.expositorId) {
+            throw new ConflictException('Expositor ID is required');
         }
 
         // Map DTO to DB columns
@@ -66,7 +60,7 @@ export class AnimalsService {
         return new Animal(data);
     }
 
-    async findAll(userEmail?: string, filterCuit?: string): Promise<Animal[]> {
+    async findAll(filterCuit?: string): Promise<Animal[]> {
         let query = this.supabase
             .from('animales')
             .select(`
@@ -77,23 +71,13 @@ export class AnimalsService {
             `)
             .order('created_at', { ascending: false });
 
-        if (userEmail) {
-            const expositor = await this.expositoresService.findOneByEmail(userEmail);
-            if (expositor) {
-                // If user is an expositor, STRICTLY filter by their ID
-                query = query.eq('expositor_id', expositor.id);
-            } else if (filterCuit) {
-                // If user is Admin (not expositor) and wants to filter by CUIT
-                const filterExpositor = await this.expositoresService.findOneByCuit(filterCuit);
-                if (filterExpositor) {
-                    query = query.eq('expositor_id', filterExpositor.id);
-                }
-            }
-        } else if (filterCuit) {
-            // Public/Admin filtering without user context (if allowed)
+        if (filterCuit) {
             const filterExpositor = await this.expositoresService.findOneByCuit(filterCuit);
             if (filterExpositor) {
                 query = query.eq('expositor_id', filterExpositor.id);
+            } else {
+                // If CUIT provided but not found, return empty
+                return [];
             }
         }
 

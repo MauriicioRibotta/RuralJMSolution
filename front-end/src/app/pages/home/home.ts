@@ -16,12 +16,13 @@ import { RouterLink } from '@angular/router';
         </p>
 
         <div class="flex flex-col md:flex-row justify-center gap-4">
-          <a routerLink="/register-expositor" class="block w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1">
-            📝 Inscribir Animal
+          <a routerLink="/inscripcion/expositor" class="block w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg text-xl shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1">
+            📝 Inscribir Mis Animales
           </a>
-          <a routerLink="/animals" class="block w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1">
-            📋 Ver Listado y Exportar
-          </a>
+        </div>
+        
+        <div class="mt-8">
+            <a routerLink="/login" class="text-blue-600 hover:underline">Acceso Administrativo</a>
         </div>
       </div>
       

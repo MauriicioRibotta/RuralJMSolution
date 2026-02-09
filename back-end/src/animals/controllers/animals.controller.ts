@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Req, Query } from '@nestjs/common';
-import { AuthGuard } from '../../common/guards/auth.guard';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Query } from '@nestjs/common';
+// import { AuthGuard } from '../../common/guards/auth.guard'; // Removed
 import { ThrottlerGuard } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { AnimalsService } from '../services/animals.service';
@@ -16,15 +16,13 @@ export class AnimalsController {
     ) { }
 
     @Post()
-    @UseGuards(AuthGuard)
-    async create(@Body() createAnimalDto: CreateAnimalDto, @Req() req: any) {
-        return this.animalsService.create(createAnimalDto, req.user?.email);
+    async create(@Body() createAnimalDto: CreateAnimalDto) {
+        return this.animalsService.create(createAnimalDto);
     }
 
     @Get()
-    @UseGuards(AuthGuard)
-    async findAll(@Req() req: any, @Query('cuit') cuit?: string) {
-        return this.animalsService.findAll(req.user?.email, cuit);
+    async findAll(@Query('cuit') cuit?: string) {
+        return this.animalsService.findAll(cuit);
     }
 
     @Get('export')
