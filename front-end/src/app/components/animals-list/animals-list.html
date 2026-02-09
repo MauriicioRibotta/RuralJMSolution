@@ -1,0 +1,145 @@
+<div class="max-w-6xl mx-auto mt-10 p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-3xl font-bold text-gray-800">Listado de Animales</h2>
+            <p class="text-gray-600 mt-1">Gestión de inscripciones y admisión</p>
+        </div>
+
+        <div class="flex gap-4">
+            <button routerLink="/animals/new"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center transition-colors">
+                <span>+ Nueva Inscripción</span>
+            </button>
+            <button (click)="exportExcel()"
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-flex items-center transition-colors">
+                <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z" />
+                </svg>
+                <span>Exportar Excel</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
+        <div class="overflow-x-auto">
+            <table class="min-w-full leading-normal">
+                <thead>
+                    <tr>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Lote
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Orden
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            RP
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Nombre
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Sexo
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Raza
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Tipo
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Categoría
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            F. Nac.
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Expositor
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Biometría
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let animal of animals$ | async" class="hover:bg-gray-50 transition-colors">
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <span class="font-bold text-gray-900">{{ animal.loteNro || '-' }}</span>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <span class="text-gray-900">{{ animal.ordenCatalogo || '-' }}</span>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <p class="text-gray-900 font-mono font-bold">{{ animal.rp }}</p>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <p class="text-gray-900 font-medium whitespace-nowrap">{{ animal.nombre || 'S/N' }}</p>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                                [ngClass]="animal.sexo === 'Macho' ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800'">
+                                {{ animal.sexo }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <div class="flex flex-col">
+                                <span class="text-gray-900 font-semibold">{{ animal.raza?.nombre }}</span>
+                                <span class="text-xs text-gray-500">{{ animal.raza?.especie?.nombre }}</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <span class="text-gray-900 text-xs">{{ animal.tipoInscripcion?.nombre }}</span>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <span class="text-gray-900 text-xs">{{ animal.categoria || '-' }}</span>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <span class="text-gray-900 whitespace-nowrap">{{ animal.fechaNacimiento | date:'dd/MM/yyyy'
+                                }}</span>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <div class="flex flex-col">
+                                <span class="text-gray-900 text-sm font-medium">{{ animal.expositor?.nombre_cabana
+                                    }}</span>
+                                <span class="text-xs text-gray-500 truncate max-w-[150px]"
+                                    title="{{animal.expositor?.razon_social}}">{{ animal.expositor?.razon_social
+                                    }}</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <div class="text-xs text-gray-600">
+                                <div title="Peso Nacimiento">PN: {{ animal.pesoNacimiento || '-' }}</div>
+                                <div title="Peso Actual">PA: <b>{{ animal.pesoActual || '-' }}</b></div>
+                                <div title="Circunferencia Escrotal">CE: {{ animal.circunferenciaEscrotal || '-' }}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm text-center">
+                            <button [routerLink]="['/admin/edit', animal.id]"
+                                class="text-blue-600 hover:text-blue-900 font-semibold text-xs uppercase tracking-wider border border-blue-200 px-3 py-1 rounded hover:bg-blue-50">
+                                Editar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div *ngIf="(animals$ | async)?.length === 0" class="p-8 text-center text-gray-500">
+            No hay animales inscritos aún.
+        </div>
+    </div>
+</div>

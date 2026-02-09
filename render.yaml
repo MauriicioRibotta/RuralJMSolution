@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ruralia-backend
+    env: node
+    plan: free
+    rootDir: back-end
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: PORT
+        value: 10000

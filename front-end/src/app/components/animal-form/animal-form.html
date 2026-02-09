@@ -1,0 +1,189 @@
+<div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 mt-10">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">
+        {{ isEditMode ? 'Editar Animal' : 'Inscribir Nuevo Animal' }}
+    </h2>
+
+    <!-- Paso 1:  <!-- Search Expositor (Only show if not already found/logged in) -->
+    <div class="mb-6 p-4 bg-gray-50 rounded-lg border" *ngIf="!expositorEncontrado || !cuitControl.disabled">
+        <h3 class="text-lg font-bold mb-4">Datos del Expositor</h3>
+
+        <div class="flex gap-4 items-end mb-4">
+            <div class="flex-grow max-w-xs">
+                <label class="block text-gray-700 text-sm font-bold mb-2">CUIT</label>
+                <input [formControl]="cuitControl" type="text" placeholder="Ej: 20123456789"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    [class.border-red-500]="cuitControl.invalid && cuitControl.touched">
+            </div>
+            <button type="button" (click)="buscarExpositor()"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Buscar
+            </button>
+        </div>
+
+        <div *ngIf="expositorEncontrado" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4"
+            role="alert">
+            <p class="font-bold">Expositor Seleccionado:</p>
+            <p>{{ expositorEncontrado.razon_social }} - {{ expositorEncontrado.nombre_cabana }}</p>
+        </div>
+
+        <!-- Formulario Nuevo Expositor (si no existe) -->
+        <form [formGroup]="expositorForm" *ngIf="mostrarFormExpositor && !expositorEncontrado"
+            class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 animate-fade-in">
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Razón Social</label>
+                <input formControlName="razonSocial" type="text" class="input-field">
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Nombre Cabaña</label>
+                <input formControlName="nombreCabana" type="text" class="input-field">
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                <input formControlName="email" type="email" class="input-field">
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Teléfono</label>
+                <input formControlName="telefono" type="text" class="input-field">
+            </div>
+            <div class="col-span-2">
+                <button type="button" (click)="crearExpositor()" [disabled]="expositorForm.invalid"
+                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                    Crear y Seleccionar Expositor
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Paso 2: Datos del Animal -->
+    <form [formGroup]="animalForm" (ngSubmit)="onSubmit()" *ngIf="expositorEncontrado" class="animate-fade-in">
+        <h3 class="text-lg font-semibold mb-4 text-blue-700">2. Datos del Animal</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Columna 1 -->
+            <div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Especie</label>
+                    <select (change)="onEspecieChange($event)" class="input-field">
+                        <option value="" disabled selected>Seleccione Especie</option>
+                        <option *ngFor="let esp of especies" [value]="esp.id">{{ esp.nombre }}</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Raza</label>
+                    <select formControlName="razaId" class="input-field">
+                        <option value="" disabled selected>Seleccione Raza</option>
+                        <option *ngFor="let raza of razasFiltradas" [value]="raza.id">{{ raza.nombre }}</option>
+                    </select>
+                    <div *ngIf="getError('razaId')" class="text-red-500 text-xs italic">La raza es requerida.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Tipo de Inscripción</label>
+                    <select formControlName="tipoInscripcionId" class="input-field">
+                        <option *ngFor="let tipo of tiposInscripcion" [value]="tipo.id">{{ tipo.nombre }}</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">RP (Registro Particular)</label>
+                    <input formControlName="rp" type="text" class="input-field" placeholder="A-123">
+                    <div *ngIf="getError('rp')" class="text-red-500 text-xs italic">
+                        RP inválido (mayúsculas, números y guiones).
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Nombre Animal</label>
+                    <input formControlName="nombre" type="text" class="input-field">
+                </div>
+            </div>
+
+            <!-- Columna 2 -->
+            <div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Sexo</label>
+                    <select formControlName="sexo" class="input-field">
+                        <option value="Macho">Macho</option>
+                        <option value="Hembra">Hembra</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Fecha Nacimiento</label>
+                    <input formControlName="fechaNacimiento" type="date" class="input-field">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Lote</label>
+                        <input formControlName="loteNro" type="number" class="input-field">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Orden Catálogo</label>
+                        <input formControlName="ordenCatalogo" type="number" class="input-field">
+                    </div>
+                </div>
+
+                <div class="mb-4 fle gap-4">
+                    <label class="inline-flex items-center">
+                        <input formControlName="venta" type="checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+                        <span class="ml-2 text-gray-700">Sale a Venta</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campos Dinámicos (Pedigree vs Controlado) -->
+        <div class="mt-6 border-t pt-4">
+            <h4 class="text-md font-semibold mb-2 text-gray-600">Datos Específicos</h4>
+
+            <!-- Pedigree -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" *ngIf="esPedigree">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Registro Asociación</label>
+                    <input formControlName="registroAsociacion" type="text" class="input-field" placeholder="HBA / ABA">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Registro Padre</label>
+                    <input formControlName="registroPadre" type="text" class="input-field">
+                </div>
+            </div>
+
+            <!-- Controlado -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" *ngIf="!esPedigree">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Categoría</label>
+                    <input formControlName="categoria" type="text" class="input-field"
+                        placeholder="Ej: Diente de leche">
+                </div>
+            </div>
+        </div>
+
+        <!-- Biometría (Solo ciertos casos o siempre visible opcional) -->
+        <div class="mt-6 border-t pt-4">
+            <h4 class="text-md font-semibold mb-2 text-gray-600">Biometría</h4>
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Peso Nac.</label>
+                    <input formControlName="pesoNacimiento" type="number" class="input-field">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Peso Actual</label>
+                    <input formControlName="pesoActual" type="number" class="input-field">
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">C. Escrotal</label>
+                    <input formControlName="circunferenciaEscrotal" type="number" class="input-field">
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 flex justify-end">
+            <button type="submit" [disabled]="!animalForm.valid"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline disabled:opacity-50 transition duration-150 ease-in-out">
+                {{ isEditMode ? 'Actualizar Animal' : 'Confirmar Inscripción' }}
+            </button>
+        </div>
+    </form>
+</div>

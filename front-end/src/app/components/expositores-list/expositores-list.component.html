@@ -1,0 +1,78 @@
+<div class="max-w-6xl mx-auto mt-10 p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-3xl font-bold text-gray-800">Listado de Expositores</h2>
+            <p class="text-gray-600 mt-1">Gestión de cabañas y expositores</p>
+        </div>
+
+        <div class="flex gap-4">
+            <button routerLink="/expositores/new"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center transition-colors">
+                <span>+ Nuevo Expositor</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
+        <div class="overflow-x-auto">
+            <table class="min-w-full leading-normal">
+                <thead>
+                    <tr>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Razón Social
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Nombre Cabaña
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            CUIT
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Contacto
+                        </th>
+                        <th
+                            class="px-5 py-3 border-b-2 border-gray-200 bg-gray-50 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let expositor of expositores$ | async" class="hover:bg-gray-50 transition-colors">
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <p class="text-gray-900 font-bold">{{ expositor.razon_social }}</p>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <p class="text-gray-900">{{ expositor.nombre_cabana }}</p>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <p class="text-gray-900 font-mono">{{ expositor.cuit }}</p>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <div class="flex flex-col">
+                                <span class="text-gray-900">{{ expositor.email || '-' }}</span>
+                                <span class="text-xs text-gray-500">{{ expositor.telefono || '-' }}</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm text-center">
+                            <button [routerLink]="['/expositores/edit', expositor.id]"
+                                class="text-blue-600 hover:text-blue-900 font-semibold mr-3">
+                                Editar
+                            </button>
+                            <button (click)="deleteExpositor(expositor.id!)"
+                                class="text-red-600 hover:text-red-900 font-semibold">
+                                Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div *ngIf="(expositores$ | async)?.length === 0" class="p-8 text-center text-gray-500">
+            No hay expositores registrados aún.
+        </div>
+    </div>
+</div>
