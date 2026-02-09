@@ -5,7 +5,7 @@
     "ng": "ng",
     "watch:css": "npx @tailwindcss/cli -i ./src/styles.css -o ./src/output.css --watch",
     "start": "concurrently \"npm run watch:css\" \"ng serve\"",
-    "build": "npx @tailwindcss/cli -i ./src/styles.css -o ./src/output.css --minify && ng build",
+    "build": "npx @tailwindcss/cli -i ./src/styles.css -o ./src/output.css --minify && ng build && cp -r dist/rural-ia-web/browser/* dist/rural-ia-web/ || true",
     "watch": "concurrently \"npm run watch:css\" \"ng build --watch --configuration development\"",
     "test": "npx @tailwindcss/cli -i ./src/styles.css -o ./src/output.css && ng test"
   },
