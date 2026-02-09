@@ -3,59 +3,13 @@
         {{ isEditMode ? 'Editar Animal' : 'Inscribir Nuevo Animal' }}
     </h2>
 
-    <!-- Paso 1:  <!-- Search Expositor (Only show if not already found/logged in) -->
-    <div class="mb-6 p-4 bg-gray-50 rounded-lg border" *ngIf="!expositorEncontrado || !cuitControl.disabled">
-        <h3 class="text-lg font-bold mb-4">Datos del Expositor</h3>
-
-        <div class="flex gap-4 items-end mb-4">
-            <div class="flex-grow max-w-xs">
-                <label class="block text-gray-700 text-sm font-bold mb-2">CUIT</label>
-                <input [formControl]="cuitControl" type="text" placeholder="Ej: 20123456789"
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    [class.border-red-500]="cuitControl.invalid && cuitControl.touched">
-            </div>
-            <button type="button" (click)="buscarExpositor()"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                Buscar
-            </button>
-        </div>
-
-        <div *ngIf="expositorEncontrado" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4"
-            role="alert">
-            <p class="font-bold">Expositor Seleccionado:</p>
-            <p>{{ expositorEncontrado.razon_social }} - {{ expositorEncontrado.nombre_cabana }}</p>
-        </div>
-
-        <!-- Formulario Nuevo Expositor (si no existe) -->
-        <form [formGroup]="expositorForm" *ngIf="mostrarFormExpositor && !expositorEncontrado"
-            class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 animate-fade-in">
-            <div>
-                <label class="block text-gray-700 text-sm font-bold mb-2">Razón Social</label>
-                <input formControlName="razonSocial" type="text" class="input-field">
-            </div>
-            <div>
-                <label class="block text-gray-700 text-sm font-bold mb-2">Nombre Cabaña</label>
-                <input formControlName="nombreCabana" type="text" class="input-field">
-            </div>
-            <div>
-                <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                <input formControlName="email" type="email" class="input-field">
-            </div>
-            <div>
-                <label class="block text-gray-700 text-sm font-bold mb-2">Teléfono</label>
-                <input formControlName="telefono" type="text" class="input-field">
-            </div>
-            <div class="col-span-2">
-                <button type="button" (click)="crearExpositor()" [disabled]="expositorForm.invalid"
-                    class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
-                    Crear y Seleccionar Expositor
-                </button>
-            </div>
-        </form>
+    <!-- Paso 2: Datos del Animal -->
+    <div class="mb-6 p-4 bg-green-50 rounded-lg border-l-4 border-green-500" *ngIf="currentExpositor">
+        <h3 class="font-bold text-green-700">Expositor: {{ currentExpositor.razonSocial }}</h3>
+        <p class="text-sm text-green-600">CUIT: {{ currentExpositor.cuit }}</p>
     </div>
 
-    <!-- Paso 2: Datos del Animal -->
-    <form [formGroup]="animalForm" (ngSubmit)="onSubmit()" *ngIf="expositorEncontrado" class="animate-fade-in">
+    <form [formGroup]="animalForm" (ngSubmit)="onSubmit()" *ngIf="currentExpositor" class="animate-fade-in">
         <h3 class="text-lg font-semibold mb-4 text-blue-700">2. Datos del Animal</h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
