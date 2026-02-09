@@ -30,11 +30,19 @@ export class AuthService {
         });
 
         if (isBrowser) {
-            // Initialize using onAuthStateChange only to avoid double-lock contention
-            // Create a promise that resolves when the first auth state change fires (initial session load)
+            // Initialize session promise
             let resolveInit: () => void;
             this.initSessionPromise = new Promise((resolve) => {
                 resolveInit = resolve;
+            });
+
+            // Explicitly get the session first to catch the hash fragment from the URL immediately
+            this.supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) {
+                    this._session = session;
+                    this._currentUser.next(session.user);
+                }
+                if (resolveInit) resolveInit();
             });
 
             // Listen for auth changes. This fires immediately with the current session state on init.
@@ -43,7 +51,7 @@ export class AuthService {
                 this._currentUser.next(session?.user ?? null);
                 if (resolveInit) {
                     resolveInit();
-                    resolveInit = null!; // Ensure it only resolves once (though promise settles once anyway)
+                    resolveInit = null!;
                 }
             });
         }
