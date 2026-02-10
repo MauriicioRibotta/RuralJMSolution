@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { AnimalsService, Animal } from '../../services/animals.service';
+import { AnimalsService } from '../../services/animals.service';
+import { Animal } from '../../interfaces/animal.interface';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-    selector: 'app-admin-dashboard',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-admin-dashboard',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="container mx-auto p-6">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Panel de Administración</h1>
@@ -69,32 +70,32 @@ import { AuthService } from '../../services/auth.service';
   `
 })
 export class AdminDashboardComponent implements OnInit {
-    animals: Animal[] = [];
+  animals: Animal[] = [];
 
-    constructor(
-        private animalsService: AnimalsService,
-        private authService: AuthService
-    ) { }
+  constructor(
+    private animalsService: AnimalsService,
+    private authService: AuthService
+  ) { }
 
-    ngOnInit(): void {
-        this.loadAnimals();
+  ngOnInit(): void {
+    this.loadAnimals();
+  }
+
+  loadAnimals() {
+    this.animalsService.findAll().subscribe(data => {
+      this.animals = data;
+    });
+  }
+
+  deleteAnimal(id: string) {
+    if (confirm('¿Estás seguro de que deseas eliminar este animal?')) {
+      this.animalsService.delete(id).subscribe(() => {
+        this.animals = this.animals.filter(a => a.id !== id);
+      });
     }
+  }
 
-    loadAnimals() {
-        this.animalsService.findAll().subscribe(data => {
-            this.animals = data;
-        });
-    }
-
-    deleteAnimal(id: string) {
-        if (confirm('¿Estás seguro de que deseas eliminar este animal?')) {
-            this.animalsService.delete(id).subscribe(() => {
-                this.animals = this.animals.filter(a => a.id !== id);
-            });
-        }
-    }
-
-    logout() {
-        this.authService.logout();
-    }
+  logout() {
+    this.authService.logout();
+  }
 }

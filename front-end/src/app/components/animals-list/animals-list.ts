@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AnimalsService, Animal } from '../../services/animals.service';
+import { AnimalsService } from '../../services/animals.service';
+import { Animal } from '../../interfaces/animal.interface';
 import { Observable } from 'rxjs';
 import { RouterModule } from '@angular/router';
 
