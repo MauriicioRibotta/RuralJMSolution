@@ -8,7 +8,7 @@ import { UpdateAnimalDto } from '../dto/update-animal.dto';
 import { ExcelService } from '../../common/excel.service';
 
 @Controller('animals')
-@UseGuards(ThrottlerGuard, AuthGuard)
+@UseGuards(ThrottlerGuard)
 export class AnimalsController {
     constructor(
         private readonly animalsService: AnimalsService,
@@ -25,6 +25,7 @@ export class AnimalsController {
         return this.animalsService.findAll(cuit);
     }
 
+    @UseGuards(AuthGuard)
     @Get('export')
     async exportToExcel(@Res() res: Response) {
         const animals = await this.animalsService.findAll();
@@ -44,11 +45,13 @@ export class AnimalsController {
         return this.animalsService.findOne(id);
     }
 
+    @UseGuards(AuthGuard)
     @Patch(':id')
     async update(@Param('id') id: string, @Body() updateAnimalDto: UpdateAnimalDto) {
         return this.animalsService.update(id, updateAnimalDto);
     }
 
+    @UseGuards(AuthGuard)
     @Delete(':id')
     async remove(@Param('id') id: string) {
         return this.animalsService.remove(id);
