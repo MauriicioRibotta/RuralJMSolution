@@ -143,17 +143,7 @@ export class ExpositorFormComponent {
             next: (expositor) => {
                 this.loading = false;
                 if (expositor) {
-                    this.cuitFound = true;
-                    this.showFullForm = true;
-                    this.isModeEdit = true;
-                    this.form.patchValue(expositor);
-                    // Lock fields maybe? Or allow update? 
-                    // For simplicity, let's allow update or just confirm
-                    this.form.disable({ onlySelf: true }); // Disable all
-                    this.form.get('cuit')?.enable(); // except cuit to search again
-                    // Actually, we need to enable the submit button...
-                    // Let's just keep enabled but marking it as "Confirm"
-                    this.form.enable();
+                    this.proceed(expositor);
                 } else {
                     this.cuitFound = false;
                     this.showFullForm = true;
@@ -213,6 +203,6 @@ export class ExpositorFormComponent {
             razonSocial: expositor.razon_social || expositor.razonSocial // Handle both cases maybe
         });
         this.loading = false;
-        this.router.navigate(['/animals/new']); // Next step
+        this.router.navigate(['/inscripcion/resumen']); // Validate flow preference
     }
 }
