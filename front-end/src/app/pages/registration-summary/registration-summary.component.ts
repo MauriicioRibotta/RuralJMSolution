@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { AnimalsService, Animal } from '../../services/animals.service';
+import { AnimalsService } from '../../services/animals.service';
+import { Animal } from '../../interfaces/animal.interface';
 import { RegistrationStateService, ExpositorState } from '../../services/registration-state.service';
 
 @Component({
