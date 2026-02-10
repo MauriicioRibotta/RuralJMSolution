@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Query } from '@nestjs/common';
-// import { AuthGuard } from '../../common/guards/auth.guard'; // Removed
+import { AuthGuard } from '../../common/guards/auth.guard';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { AnimalsService } from '../services/animals.service';
@@ -8,7 +8,7 @@ import { UpdateAnimalDto } from '../dto/update-animal.dto';
 import { ExcelService } from '../../common/excel.service';
 
 @Controller('animals')
-@UseGuards(ThrottlerGuard)
+@UseGuards(ThrottlerGuard, AuthGuard)
 export class AnimalsController {
     constructor(
         private readonly animalsService: AnimalsService,

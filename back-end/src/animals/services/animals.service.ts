@@ -20,29 +20,7 @@ export class AnimalsService {
         }
 
         // Map DTO to DB columns
-        const dbPayload = {
-            expositor_id: createAnimalDto.expositorId,
-            raza_id: createAnimalDto.razaId,
-            tipo_inscripcion_id: createAnimalDto.tipoInscripcionId,
-            rp: createAnimalDto.rp,
-            nombre_animal: createAnimalDto.nombre,
-            sexo: createAnimalDto.sexo,
-            fecha_nacimiento: createAnimalDto.fechaNacimiento,
-            lote_nro: createAnimalDto.loteNro,
-            orden_catalogo: createAnimalDto.ordenCatalogo,
-            venta: createAnimalDto.venta,
-            acepta_terminos: createAnimalDto.aceptaTerminos,
-            registro_asociacion: createAnimalDto.registroAsociacion,
-            registro_padre: createAnimalDto.registroPadre,
-            registro_madre: createAnimalDto.registroMadre,
-            fecha_servicio: createAnimalDto.fechaServicio,
-            categoria: createAnimalDto.categoria,
-            reemplazante_tipo: createAnimalDto.reemplazanteTipo,
-            peso_nacimiento: createAnimalDto.pesoNacimiento,
-            peso_actual: createAnimalDto.pesoActual,
-            circunferencia_escrotal: createAnimalDto.circunferenciaEscrotal,
-            observaciones: createAnimalDto.observaciones,
-        };
+        const dbPayload = this.mapDtoToDb(createAnimalDto);
 
         const { data, error } = await this.supabase
             .from('animales')
@@ -118,29 +96,7 @@ export class AnimalsService {
     }
 
     async update(id: string, updateAnimalDto: UpdateAnimalDto): Promise<Animal> {
-        const dbPayload: any = {};
-        // Map only present fields
-        if (updateAnimalDto.expositorId) dbPayload.expositor_id = updateAnimalDto.expositorId;
-        if (updateAnimalDto.razaId) dbPayload.raza_id = updateAnimalDto.razaId;
-        if (updateAnimalDto.tipoInscripcionId) dbPayload.tipo_inscripcion_id = updateAnimalDto.tipoInscripcionId;
-        if (updateAnimalDto.rp) dbPayload.rp = updateAnimalDto.rp;
-        if (updateAnimalDto.nombre) dbPayload.nombre_animal = updateAnimalDto.nombre;
-        if (updateAnimalDto.sexo) dbPayload.sexo = updateAnimalDto.sexo;
-        if (updateAnimalDto.fechaNacimiento) dbPayload.fecha_nacimiento = updateAnimalDto.fechaNacimiento;
-        if (updateAnimalDto.loteNro !== undefined) dbPayload.lote_nro = updateAnimalDto.loteNro;
-        if (updateAnimalDto.ordenCatalogo !== undefined) dbPayload.orden_catalogo = updateAnimalDto.ordenCatalogo;
-        if (updateAnimalDto.venta !== undefined) dbPayload.venta = updateAnimalDto.venta;
-        if (updateAnimalDto.aceptaTerminos !== undefined) dbPayload.acepta_terminos = updateAnimalDto.aceptaTerminos;
-        if (updateAnimalDto.registroAsociacion !== undefined) dbPayload.registro_asociacion = updateAnimalDto.registroAsociacion;
-        if (updateAnimalDto.registroPadre !== undefined) dbPayload.registro_padre = updateAnimalDto.registroPadre;
-        if (updateAnimalDto.registroMadre !== undefined) dbPayload.registro_madre = updateAnimalDto.registroMadre;
-        if (updateAnimalDto.fechaServicio !== undefined) dbPayload.fecha_servicio = updateAnimalDto.fechaServicio;
-        if (updateAnimalDto.categoria !== undefined) dbPayload.categoria = updateAnimalDto.categoria;
-        if (updateAnimalDto.reemplazanteTipo !== undefined) dbPayload.reemplazante_tipo = updateAnimalDto.reemplazanteTipo;
-        if (updateAnimalDto.pesoNacimiento !== undefined) dbPayload.peso_nacimiento = updateAnimalDto.pesoNacimiento;
-        if (updateAnimalDto.pesoActual !== undefined) dbPayload.peso_actual = updateAnimalDto.pesoActual;
-        if (updateAnimalDto.circunferenciaEscrotal !== undefined) dbPayload.circunferencia_escrotal = updateAnimalDto.circunferenciaEscrotal;
-        if (updateAnimalDto.observaciones !== undefined) dbPayload.observaciones = updateAnimalDto.observaciones;
+        const dbPayload = this.mapDtoToDb(updateAnimalDto);
 
         if (Object.keys(dbPayload).length === 0) {
             return this.findOne(id);
@@ -169,5 +125,39 @@ export class AnimalsService {
         if (error) {
             throw new InternalServerErrorException(`Error deleting animal: ${error.message}`);
         }
+    }
+
+    private mapDtoToDb(dto: CreateAnimalDto | UpdateAnimalDto): any {
+        const mapping: Record<string, string> = {
+            expositorId: 'expositor_id',
+            razaId: 'raza_id',
+            tipoInscripcionId: 'tipo_inscripcion_id',
+            rp: 'rp',
+            nombre: 'nombre_animal',
+            sexo: 'sexo',
+            fechaNacimiento: 'fecha_nacimiento',
+            loteNro: 'lote_nro',
+            ordenCatalogo: 'orden_catalogo',
+            venta: 'venta',
+            aceptaTerminos: 'acepta_terminos',
+            registroAsociacion: 'registro_asociacion',
+            registroPadre: 'registro_padre',
+            registroMadre: 'registro_madre',
+            fechaServicio: 'fecha_servicio',
+            categoria: 'categoria',
+            reemplazanteTipo: 'reemplazante_tipo',
+            pesoNacimiento: 'peso_nacimiento',
+            pesoActual: 'peso_actual',
+            circunferenciaEscrotal: 'circunferencia_escrotal',
+            observaciones: 'observaciones',
+        };
+
+        const dbPayload: any = {};
+        for (const [dtoKey, dbKey] of Object.entries(mapping)) {
+            if ((dto as any)[dtoKey] !== undefined) {
+                dbPayload[dbKey] = (dto as any)[dtoKey];
+            }
+        }
+        return dbPayload;
     }
 }

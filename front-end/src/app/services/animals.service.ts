@@ -1,44 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Expositor } from '../interfaces/expositor.interface';
-import { Raza, TipoInscripcion } from '../interfaces/catalogos.interface';
-
-export interface Animal {
-    id?: string;
-    expositorId: string;
-    expositor?: Expositor;
-    razaId: number;
-    raza?: Raza;
-    tipoInscripcionId: number;
-    tipoInscripcion?: TipoInscripcion;
-
-    rp: string;
-    nombre?: string;
-    sexo: 'Macho' | 'Hembra';
-    fechaNacimiento?: string;
-
-    loteNro?: number;
-    ordenCatalogo?: number;
-    venta?: boolean;
-    aceptaTerminos?: boolean;
-
-    registroAsociacion?: string;
-    registroPadre?: string;
-    registroMadre?: string;
-    fechaServicio?: string;
-
-    categoria?: string;
-    reemplazanteTipo?: string;
-
-    pesoNacimiento?: number;
-    pesoActual?: number;
-    circunferenciaEscrotal?: number;
-
-    observaciones?: string;
-    activo?: boolean; // Keep for compatibility if needed, though not in new DB schema as a column, maybe calculated
-}
+import { Animal } from '../interfaces/animal.interface';
 
 @Injectable({
     providedIn: 'root'
@@ -53,9 +17,9 @@ export class AnimalsService {
     }
 
     findAll(cuit?: string): Observable<Animal[]> {
-        const params: any = {};
+        let params = new HttpParams();
         if (cuit) {
-            params.cuit = cuit;
+            params = params.set('cuit', cuit);
         }
         return this.http.get<Animal[]>(this.apiUrl, { params });
     }
