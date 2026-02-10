@@ -7,6 +7,7 @@ import { CatalogosService } from '../../services/catalogos.service';
 import { RegistrationStateService, ExpositorState } from '../../services/registration-state.service';
 import { Especie, Raza, TipoInscripcion } from '../../interfaces/catalogos.interface';
 import { Router, ActivatedRoute } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-animal-form',
@@ -72,8 +73,14 @@ export class AnimalFormComponent implements OnInit {
     this.currentExpositor = this.stateService.currentExpositor;
     if (!this.currentExpositor) {
       // Redirect to step 1 if no expositor allowed
-      alert('Debe identificar al expositor primero.');
-      this.router.navigate(['/inscripcion/expositor']);
+      Swal.fire({
+        icon: 'warning',
+        title: 'Acceso Restringido',
+        text: 'Debe identificar al expositor primero.',
+        confirmButtonText: 'Ir a Identificación'
+      }).then(() => {
+        this.router.navigate(['/inscripcion/expositor']);
+      });
       return;
     }
 
@@ -109,8 +116,14 @@ export class AnimalFormComponent implements OnInit {
       next: (animal) => {
         // Verify ownership?
         if (animal.expositorId !== this.currentExpositor?.id) {
-          alert('No tienes permiso para editar este animal.');
-          this.router.navigate(['/animals']);
+          Swal.fire({
+            icon: 'error',
+            title: 'Acceso Denegado',
+            text: 'No tienes permiso para editar este animal.',
+            confirmButtonText: 'Volver'
+          }).then(() => {
+            this.router.navigate(['/animals']);
+          });
           return;
         }
 
@@ -147,25 +160,60 @@ export class AnimalFormComponent implements OnInit {
         }
       });
 
+      // Show loading
+      Swal.fire({
+        title: 'Guardando...',
+        text: 'Por favor espere mientras procesamos la inscripción.',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
       const request$ = this.isEditMode && this.currentAnimalId
         ? this.animalsService.update(this.currentAnimalId, animalData)
         : this.animalsService.create(animalData);
 
       request$.subscribe({
         next: () => {
-          alert('Animal guardado correctamente.');
-          // Redirect to Summary or Ask to add another?
-          // For now, let's go to summary which allows adding more
-          this.router.navigate(['/inscripcion/resumen']);
+          Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: 'Animal guardado correctamente.',
+            confirmButtonText: 'Continuar'
+          }).then(() => {
+            this.router.navigate(['/inscripcion/resumen']);
+          });
         },
         error: (err) => {
           console.error(err);
-          alert('Error al guardar: ' + (err.error?.message || err.message));
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo guardar el animal: ' + (err.error?.message || err.message)
+          });
         }
       });
     } else {
       this.animalForm.markAllAsTouched();
-      alert('Por favor complete todos los campos requeridos');
+
+      // Find first invalid control and scroll
+      const invalidControl = Object.keys(this.animalForm.controls).find(key => this.animalForm.get(key)?.invalid);
+
+      if (invalidControl) {
+        const element = document.querySelector(`[formControlName="${invalidControl}"]`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          (element as HTMLElement).focus();
+        }
+      }
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Formulario Incompleto',
+        text: 'Por favor revise los campos marcados en rojo.',
+        confirmButtonText: 'Entendido'
+      });
     }
   }
 
