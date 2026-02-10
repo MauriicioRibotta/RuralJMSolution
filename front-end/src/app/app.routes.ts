@@ -21,7 +21,7 @@ export const routes: Routes = [
     { path: 'inscripcion/resumen', component: RegistrationSummaryComponent },
 
     // Keep legacy for now or redirect
-    { path: 'login', redirectTo: 'inscripcion/expositor' },
+    { path: 'login', component: LoginComponent },
     { path: 'register-expositor', redirectTo: 'inscripcion/expositor' },
     { path: 'animals/new', redirectTo: 'inscripcion/animales' },
 
