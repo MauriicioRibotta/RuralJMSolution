@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ExpositoresService } from '../../services/expositores.service';
 import { RegistrationStateService } from '../../services/registration-state.service';
+import { GeoRefService, Provincia, Departamento, Localidad } from '../../services/georef.service';
 import { Expositor } from '../../interfaces/expositor.interface';
 
 @Component({
@@ -55,37 +56,56 @@ import { Expositor } from '../../interfaces/expositor.interface';
                 <div>
                   <label class="block text-sm font-medium text-gray-700">Razón Social</label>
                   <input type="text" formControlName="razonSocial" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                  <p *ngIf="getError('razonSocial')" class="text-red-500 text-xs mt-1">Este campo es requerido.</p>
                 </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700">Nombre Cabaña</label>
                   <input type="text" formControlName="nombreCabana" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                   <p *ngIf="getError('nombreCabana')" class="text-red-500 text-xs mt-1">Este campo es requerido.</p>
                 </div>
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700">Email (Contacto)</label>
                   <input type="email" formControlName="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                   <p *ngIf="getError('email')" class="text-red-500 text-xs mt-1">Email válido es requerido.</p>
                 </div>
 
                  <div class="grid grid-cols-2 gap-4">
-                    <div>
+                    <div class="col-span-2">
                         <label class="block text-sm font-medium text-gray-700">Teléfono</label>
                         <input type="text" formControlName="telefono" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    </div>
-                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Provincia</label>
-                        <input type="text" formControlName="provincia" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <p *ngIf="getError('telefono')" class="text-red-500 text-xs mt-1">Este campo es requerido.</p>
                     </div>
                 </div>
 
-                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Localidad</label>
-                        <input type="text" formControlName="localidad" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <!-- Location Fields -->
+                <div class="grid grid-cols-1 gap-4">
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Provincia</label>
+                        <select formControlName="provincia" (change)="onProvinciaChange()" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="">Seleccione una provincia</option>
+                            <option *ngFor="let p of provincias" [value]="p.nombre">{{ p.nombre }}</option>
+                        </select>
+                         <p *ngIf="getError('provincia')" class="text-red-500 text-xs mt-1">Seleccione una provincia.</p>
                     </div>
+
                      <div>
                         <label class="block text-sm font-medium text-gray-700">Departamento</label>
-                        <input type="text" formControlName="departamento" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                        <select formControlName="departamento" (change)="onDepartamentoChange()" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="">Seleccione un departamento</option>
+                             <option *ngFor="let d of departamentos" [value]="d.nombre">{{ d.nombre }}</option>
+                        </select>
+                         <p *ngIf="getError('departamento')" class="text-red-500 text-xs mt-1">Seleccione un departamento.</p>
+                    </div>
+
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Localidad</label>
+                        <select formControlName="localidad" class="mt-1 block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="">Seleccione una localidad</option>
+                             <option *ngFor="let l of localidades" [value]="l.nombre">{{ l.nombre }}</option>
+                        </select>
+                         <p *ngIf="getError('localidad')" class="text-red-500 text-xs mt-1">Seleccione una localidad.</p>
                     </div>
                 </div>
 
@@ -104,29 +124,71 @@ import { Expositor } from '../../interfaces/expositor.interface';
     </div>
   `
 })
-export class ExpositorFormComponent {
+export class ExpositorFormComponent implements OnInit {
     form: FormGroup;
     loading = false;
     showFullForm = false;
     cuitFound = false;
-    isModeEdit = false; // True if found existing, False if creating new
+    isModeEdit = false;
+
+    // Geo Data
+    provincias: Provincia[] = [];
+    departamentos: Departamento[] = [];
+    localidades: Localidad[] = [];
 
     constructor(
         private fb: FormBuilder,
         private expositoresService: ExpositoresService,
         private stateService: RegistrationStateService,
-        private router: Router
+        private router: Router,
+        private geoRefService: GeoRefService
     ) {
         this.form = this.fb.group({
             cuit: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
             razonSocial: ['', Validators.required],
             nombreCabana: ['', Validators.required],
             email: ['', [Validators.required, Validators.email]],
-            telefono: [''],
-            provincia: [''],
-            localidad: [''],
-            departamento: ['']
+            telefono: ['', Validators.required],
+            provincia: ['', Validators.required],
+            localidad: ['', Validators.required],
+            departamento: ['', Validators.required]
         });
+    }
+
+    ngOnInit() {
+        this.loadProvincias();
+    }
+
+    loadProvincias() {
+        this.geoRefService.getProvincias().subscribe(provincias => {
+            this.provincias = provincias;
+        });
+    }
+
+    onProvinciaChange() {
+        const provincia = this.form.get('provincia')?.value;
+        this.departamentos = [];
+        this.localidades = [];
+        this.form.patchValue({ departamento: '', localidad: '' });
+
+        if (provincia) {
+            this.geoRefService.getDepartamentos(provincia).subscribe(deptos => {
+                this.departamentos = deptos;
+            });
+        }
+    }
+
+    onDepartamentoChange() {
+        const departamento = this.form.get('departamento')?.value;
+        const provincia = this.form.get('provincia')?.value;
+        this.localidades = [];
+        this.form.patchValue({ localidad: '' });
+
+        if (departamento && provincia) {
+            this.geoRefService.getLocalidades(departamento, provincia).subscribe(locs => {
+                this.localidades = locs;
+            });
+        }
     }
 
     getError(controlName: string) {
@@ -139,7 +201,7 @@ export class ExpositorFormComponent {
         if (!cuit || this.form.get('cuit')?.invalid) return;
 
         this.loading = true;
-        this.expositoresService.getByCuit(cuit).subscribe({ // Assuming service has this method
+        this.expositoresService.getByCuit(cuit).subscribe({
             next: (expositor) => {
                 this.loading = false;
                 if (expositor) {
@@ -148,14 +210,12 @@ export class ExpositorFormComponent {
                     this.cuitFound = false;
                     this.showFullForm = true;
                     this.isModeEdit = false;
-                    // Clear other fields
                     this.form.reset({ cuit: cuit });
                 }
             },
             error: (err) => {
                 this.loading = false;
                 console.error(err);
-                // Fallback: Assume not found if specific error, or general error
                 this.cuitFound = false;
                 this.showFullForm = true;
                 this.isModeEdit = false;
@@ -173,8 +233,6 @@ export class ExpositorFormComponent {
         const data = this.form.value;
 
         if (this.isModeEdit) {
-            // Find existing again to get ID (or we could have stored it)
-            // Ideally getByCuit returns ID
             this.expositoresService.getByCuit(data.cuit).subscribe({
                 next: (expositor) => {
                     if (expositor) {
@@ -183,7 +241,6 @@ export class ExpositorFormComponent {
                 }
             });
         } else {
-            // Create new
             this.expositoresService.create(data).subscribe({
                 next: (newExpositor) => {
                     this.proceed(newExpositor);
@@ -200,9 +257,9 @@ export class ExpositorFormComponent {
         this.stateService.setExpositor({
             id: expositor.id,
             cuit: expositor.cuit,
-            razonSocial: expositor.razon_social || expositor.razonSocial // Handle both cases maybe
+            razonSocial: expositor.razon_social || expositor.razonSocial
         });
         this.loading = false;
-        this.router.navigate(['/inscripcion/resumen']); // Validate flow preference
+        this.router.navigate(['/inscripcion/resumen']);
     }
 }
